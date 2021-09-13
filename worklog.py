@@ -1,10 +1,14 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3
 
 import argparse
 import datetime
 
 # Fri 13 Sep 2019 09:36:59 AM CEST
 DATE_FMT = '%a %d %b %Y %I:%M:%S %p %Z'
+
+# Wed 08 Sep 2021 06:42:38 PM CEST
+# Wed Sep  8 06:47:06 PM CEST 2021
+DATE_FMT_2 = '%a %b %d %I:%M:%S %p %Z %Y'
 
 def terminal(line):
     print(line)
@@ -17,7 +21,11 @@ def collect_gaps(lines, max_activity_gap=60, printer=terminal):
     activities = 0
     for line in lines:
         line = line.strip()
-        activity = datetime.datetime.strptime(line, DATE_FMT)
+        try:
+            activity = datetime.datetime.strptime(line, DATE_FMT)
+        except ValueError:
+            # falling back to the other format
+            activity = datetime.datetime.strptime(line, DATE_FMT_2)
         
         if activity_start is None:
             activity_start = activity
@@ -57,8 +65,8 @@ def parse_args():
         '-g', 
         '--gap', 
         help=('The maximum inactivity in minutes that does not start a new '
-              'period. Default is 60 minutes'),
-        default=60,
+              'period. Default is 40 minutes'),
+        default=40,
         type=int)
 
     return argparser.parse_args()
